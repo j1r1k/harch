@@ -28,6 +28,7 @@ dependencies:
 - extra
 - foldl
 - optparse-applicative
+- safe
 - text
 - time
 - turtle

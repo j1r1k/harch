@@ -10,8 +10,9 @@ import Data.Text (Text)
 
 import Turtle ((&), ExitCode(ExitSuccess))
 import qualified Turtle as T (empty, proc)
+import qualified Turtle.Bytes as TB (inproc, proc)
 
-import Storage (Inproc(..), Path, Storage(..), StorageBackend(..))
+import Storage (Path, Storage(..))
 
 data S3CliOptions = S3CliOptions {
     bucket :: Text,
@@ -30,16 +31,14 @@ makeS3Uri S3CliOptions { bucket } path = "s3://" <> bucket <> path
 getAwsCliCmd :: S3CliOptions -> Text
 getAwsCliCmd = fromMaybe defaultAwsCliCmd . awsCliCmd
 
-instance StorageBackend S3CliStorage where
+instance Storage S3CliStorage where
+  readFile S3CliStorage { options } path = T.empty & TB.inproc (getAwsCliCmd options) args
+    where args = ["cp"] <> awsCliArgs options <> [makeS3Uri options path, "-"]
+  writeFile S3CliStorage { options } path = TB.proc (getAwsCliCmd options) args
+    where args = ["cp"] <> awsCliArgs options <> ["-", makeS3Uri options path]
   removeFile S3CliStorage { options } path = T.empty & T.proc (getAwsCliCmd options) args
     where args = ["rm"] <> awsCliArgs options <> [makeS3Uri options path]
   exists S3CliStorage { options } path = do
     let args = ["ls"] <> awsCliArgs options <> [makeS3Uri options path]
     exitCode <- T.empty & T.proc (getAwsCliCmd options) args 
     return $ exitCode == ExitSuccess
-
-instance (Inproc i) => Storage S3CliStorage i where
-  readFile S3CliStorage { options } path = source (getAwsCliCmd options) args
-    where args = ["cp"] <> awsCliArgs options <> [makeS3Uri options path, "-"]
-  writeFile S3CliStorage { options } path = target (getAwsCliCmd options) args
-    where args = ["cp"] <> awsCliArgs options <> ["-", makeS3Uri options path]

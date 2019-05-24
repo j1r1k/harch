@@ -9,15 +9,15 @@ import qualified Data.Map as Map (fromList, insert, lookup, toAscList)
 import Data.Text (Text)
 
 import Turtle (MonadIO, Shell)
+import Safe (headMay, lastMay)
 
-import ListExt (safeHead, safeLast)
 import Metadata (ArchiveCollection(..), ArchiveMetadata(..), ArchiveType(..))
 import ShellJSON (fromJSON)
 
 type ArchiveStore = Map Text ArchiveCollection
 
 getNewestArchive :: ArchiveCollection -> Maybe ArchiveMetadata
-getNewestArchive = safeLast . List.sort . archives
+getNewestArchive = lastMay . List.sort . archives
 
 lookupNewestArchiveMetadata :: ArchiveStore -> Text -> Maybe ArchiveMetadata
 lookupNewestArchiveMetadata store archiveRoot = Map.lookup archiveRoot store >>= getNewestArchive
@@ -30,7 +30,7 @@ addArchiveMetadata store archiveRoot newRecord = Map.insert archiveRoot newColle
                                 (Map.lookup archiveRoot store)
 
 selectArchivesToRestore :: [ArchiveMetadata] -> Maybe [ArchiveMetadata]
-selectArchivesToRestore backups = let (increments, rest) = span (\b -> Incremental == archiveType b) $ List.sortBy (flip compare) backups in (\full -> full : reverse increments) <$> safeHead rest
+selectArchivesToRestore backups = let (increments, rest) = span (\b -> Incremental == archiveType b) $ List.sortBy (flip compare) backups in (\full -> full : reverse increments) <$> headMay rest
 
 -- TODO improve
 parseArchiveStore :: MonadIO io => Shell ByteString -> io (Either String ArchiveStore)
