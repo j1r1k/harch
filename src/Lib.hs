@@ -38,9 +38,9 @@ data StorageConfiguration s1 s2 s3 = StorageConfiguration {
 }
 
 sampleStorageConfiguration = StorageConfiguration {
-    storeStorage = LocalStorage "/home/jirik/Downloads/bak/meta",
-    filesStorage = LocalStorage "/home/jirik/Downloads/bak/meta/lists",
-    dataStorage = GpgStorage { gpgOptions = gpgOptions, underlyingStorage = LocalStorage "/home/jirik/Downloads/bak" }
+    storeStorage = LocalStorage "test/meta",
+    filesStorage = LocalStorage "test/meta/lists",
+    dataStorage = GpgStorage { gpgOptions = gpgOptions, underlyingStorage = LocalStorage "test/backup" }
 }
     where gpgOptions = GpgOptions { 
         gpgSign = True,
@@ -133,8 +133,8 @@ data RestoreArchiveOptions = RestoreArchiveOptions {
 } deriving (Eq, Show)
 
 sampleRestoreArchiveOptions = RestoreArchiveOptions {
-    restorePath = "/home/jirik/Desktop",
-    restoreTo = "/home/jirik/Downloads/bak.restore"
+    restorePath = "src",
+    restoreTo = "test/restore"
 }
 
 restoreFlow :: IO ()

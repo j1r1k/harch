@@ -1,6 +1,6 @@
-name:                hbk
+name:                harch
 version:             0.1.0.0
-github:              "j1r1k/hbk"
+github:              "j1r1k/harch"
 license:             BSD3
 author:              "Jiri Marsicek"
 maintainer:          "jiri.marsicek@gmail.com"
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description:         Please see the README on GitHub at <https://github.com/j1r1k/hbk#readme>
+description:         Please see the README on GitHub at <https://github.com/j1r1k/harch#readme>
 
 dependencies:
 - base >= 4.7 && < 5
@@ -38,7 +38,7 @@ library:
   source-dirs: src
 
 executables:
-  hbk-exe:
+  harch-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -46,10 +46,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - hbk
+    - harch
 
 tests:
-  hbk-test:
+  harch-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -57,4 +57,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - hbk
+    - harch

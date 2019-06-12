@@ -1,3 +1,3 @@
-# Changelog for hbk
+# Changelog for harch
 
 ## Unreleased changes
