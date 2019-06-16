@@ -1,0 +1,37 @@
+---
+general:
+  tarOptions: 
+    args: ["--selinux", "--acls", "--xattrs"]
+storage:
+  defaults:
+    local:
+      root: ${HOME}/Backup/harch
+    s3cli:
+      bucket: net-marsicek-backup1/duply
+    gpg:
+      recipient: DF995C5E
+  store:
+    type: mirror
+    underlying:
+      - type: local
+        path: store
+      - type: gpg
+        underlying:
+          type: s3cli
+          path: store
+  lists:
+    type: mirror
+    underlying:
+       - type: local
+         path: store/lists
+       - type: gpg
+         underlying:
+           type: s3cli
+           path: store/lists
+  files:
+    type: gpg
+    underlying:
+      type: s3cli
+      path: files
+
+  

@@ -29,10 +29,14 @@ dependencies:
 - foldl
 - optparse-applicative
 - safe
+- lens
 - text
 - time
 - turtle
 - uuid
+- yaml
+- higgledy
+- barbies
 
 library:
   source-dirs: src
