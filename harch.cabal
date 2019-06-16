@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3a9d85f10efaf79d1689a7aca360a5d676a0b37b837b6bb7c769ab9740ea936a
+-- hash: 71061aab69bdd211a2d971800a81b02364852bfdb84363559843ec53fa0717a9
 
 name:           harch
 version:        0.1.0.0
@@ -27,15 +27,18 @@ source-repository head
 
 library
   exposed-modules:
+      HArch.CmdArguments
+      HArch.Configuration
+      HArch.Metadata
+      HArch.MetadataStore
+      HArch.Path
+      HArch.ShellCommands
+      HArch.ShellJSON
+      HArch.Storage
+      HArch.Storage.Gpg
+      HArch.Storage.Local
+      HArch.Storage.S3Cli
       Lib
-      Metadata
-      MetadataStore
-      ShellCommands
-      ShellJSON
-      Storage
-      Storage.Gpg
-      Storage.Local
-      Storage.S3Cli
   other-modules:
       Paths_harch
   hs-source-dirs:

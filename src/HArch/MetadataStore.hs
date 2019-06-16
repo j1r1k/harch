@@ -1,4 +1,4 @@
-module MetadataStore where
+module HArch.MetadataStore where
 
 import qualified Data.Aeson.Encode.Pretty as A (encodePretty)
 import Data.ByteString (ByteString)
@@ -6,24 +6,24 @@ import qualified Data.ByteString.Lazy as BS (toStrict)
 import qualified Data.List as List (sort, sortBy)
 import Data.Map (Map)
 import qualified Data.Map as Map (fromList, insert, lookup, toAscList)
-import Data.Text (Text)
 
 import Turtle (MonadIO, Shell)
 import Safe (headMay, lastMay)
 
-import Metadata (ArchiveCollection(..), ArchiveMetadata(..), ArchiveType(..))
-import ShellJSON (fromJSON)
+import HArch.Metadata (ArchiveCollection(..), ArchiveMetadata(..), ArchiveType(..))
+import HArch.Path (Path)
+import HArch.ShellJSON (fromJSON)
 
-type ArchiveStore = Map Text ArchiveCollection
+type ArchiveStore = Map Path ArchiveCollection
 
 getNewestArchive :: ArchiveCollection -> Maybe ArchiveMetadata
 getNewestArchive = lastMay . List.sort . archives
 
-lookupNewestArchiveMetadata :: ArchiveStore -> Text -> Maybe ArchiveMetadata
+lookupNewestArchiveMetadata :: ArchiveStore -> Path -> Maybe ArchiveMetadata
 lookupNewestArchiveMetadata store archiveRoot = Map.lookup archiveRoot store >>= getNewestArchive
 
 -- TODO use lens
-addArchiveMetadata :: ArchiveStore -> Text -> ArchiveMetadata -> ArchiveStore
+addArchiveMetadata :: ArchiveStore -> Path -> ArchiveMetadata -> ArchiveStore
 addArchiveMetadata store archiveRoot newRecord = Map.insert archiveRoot newCollection store
     where newCollection = maybe ArchiveCollection { root = archiveRoot, archives = [newRecord] } 
                                 (\collection -> collection { archives = newRecord : archives collection}) 

@@ -1,23 +1,15 @@
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Storage.Gpg where
-
-import Prelude hiding (readFile, writeFile)
+module HArch.Storage.Gpg where
 
 import Data.ByteString (ByteString)
-import Data.Time.Format (defaultTimeLocale, formatTime)
-import Data.Time.LocalTime (LocalTime)
 import Data.Text (Text)
-import qualified Data.Text as Text (pack)
 
-import Turtle (Line, Shell, (&))
-import qualified Turtle as T (empty)
-import qualified Turtle as TL (inproc)
+import Turtle (Shell, (&))
 import qualified Turtle.Bytes as TB (inproc)
 
-import Storage (Storage(..))
+import HArch.Storage (Storage(..))
 
 data GpgOptions = GpgOptions {
     gpgSign :: Bool,
@@ -40,7 +32,7 @@ gpgDecryptCmd = TB.inproc "gpg" ["--decrypt"]
 data GpgStorage s = GpgStorage { gpgOptions :: GpgOptions, underlyingStorage :: Storage s => s }
 
 instance Storage s => Storage (GpgStorage s) where
-  readFile s path = readFile (underlyingStorage s) path & gpgDecryptCmd
-  writeFile s path shell = shell & gpgEncryptCmd (gpgOptions s) & writeFile (underlyingStorage s) path
+  readFromFile s path = readFromFile (underlyingStorage s) path & gpgDecryptCmd
+  writeToFile s path shell = shell & gpgEncryptCmd (gpgOptions s) & writeToFile (underlyingStorage s) path
   removeFile s = removeFile (underlyingStorage s)
   exists s = exists (underlyingStorage s)
