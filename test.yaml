@@ -1,11 +1,12 @@
 ---
 general:
+  storePath: collection.json
   tarOptions: 
     args: ["--selinux", "--acls", "--xattrs"]
 storage:
   defaults:
     local:
-      root: ${HOME}/Backup/harch
+      root: "{{HOME}}/Backup/harch"
     s3cli:
       bucket: net-marsicek-backup1/duply
     gpg:

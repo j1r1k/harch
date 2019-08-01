@@ -13,9 +13,9 @@ module HArch.Configuration.Partial (
 import GHC.Generics (Generic)
 
 import Data.Aeson (FromJSON(..))
-import qualified Data.Aeson as A (FromArgs(..), GFromJSON, Value, Zero, gParseJSON, defaultOptions)
+import qualified Data.Aeson as A (FromArgs(..), GFromJSON, Options(..), Value, Zero, gParseJSON, defaultOptions)
 import qualified Data.Aeson.Types as A (Parser)
-import Data.Barbie (ProductB, TraversableB)
+import Data.Barbie (ProductB, TraversableB, FunctorB(..))
 import Data.Generic.HKD (HKD(..))
 import qualified Data.Generic.HKD as HKD (HKD_, Construct, construct, fromTuple, labelsWhere, toTuple, Label, Tuple)
 import Data.Maybe (isNothing)
@@ -29,8 +29,9 @@ instance (Semigroup tuple, Generic p, HKD.Tuple Last p tuple) => Semigroup (Part
 instance (Monoid tuple, Generic p, HKD.Tuple Last p tuple) => Monoid (Partial p) where
   mempty = Partial $ HKD.fromTuple mempty
 
-instance A.GFromJSON A.Zero (HKD.HKD_ Last p) => FromJSON (Partial p) where
-  parseJSON = fmap (Partial . HKD) . A.gParseJSON A.defaultOptions A.NoFromArgs
+instance (FunctorB (HKD p), A.GFromJSON A.Zero (HKD.HKD_ Maybe p)) => FromJSON (Partial p) where
+  parseJSON = fmap (Partial . bmap Last . HKD) . A.gParseJSON options A.NoFromArgs
+    where options = A.defaultOptions { A.omitNothingFields = True }
 
 missingFields :: 
   forall structure . 
@@ -61,7 +62,7 @@ gParseJSONWithDefaults ::
   , ProductB (HKD structure)
   , TraversableB (HKD structure)
   , HKD.Construct Last structure
-  , A.GFromJSON A.Zero (HKD.HKD_ Last structure)
+  , A.GFromJSON A.Zero (HKD.HKD_ Maybe structure)
   , Semigroup tuple
   , HKD.Tuple Last structure tuple
   ) => Partial structure -> A.Value -> A.Parser structure

@@ -1,6 +1,6 @@
 {-# LANGUAGE DuplicateRecordFields      #-}
 
-module HArch.Configuration.Modes where
+module HArch.Configuration.Mode where
 
 import Data.Text (Text)
 
@@ -16,10 +16,11 @@ data CreateArchiveConfig =
 
 data RestoreArchiveConfig =
     RestoreArchiveConfig {
-        name :: Path,
+        name :: Text,
         target :: Path
     } deriving (Eq, Show)
 
 data HArchMode =
     CreateArchiveMode CreateArchiveConfig
   | RestoreArchiveMode RestoreArchiveConfig
+  deriving (Eq, Show)

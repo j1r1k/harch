@@ -22,11 +22,12 @@ description:         Please see the README on GitHub at <https://github.com/j1r1
 dependencies:
 - base >= 4.7 && < 5
 - aeson
-- aeson-pretty
+- aeson-pretty # todo check
 - bytestring
-- containers
+- containers # replace with unordered-containers
 - extra
-- foldl
+- errors # todo check
+- foldl # todo check
 - optparse-applicative
 - safe
 - lens
@@ -36,7 +37,10 @@ dependencies:
 - uuid
 - yaml
 - higgledy
-- barbies
+- barbies # todo check
+- mtl
+- glabrous
+- unordered-containers
 
 library:
   source-dirs: src

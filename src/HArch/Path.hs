@@ -4,6 +4,7 @@ import Data.Aeson (FromJSON(..), ToJSON(..))
 import qualified Data.Aeson as A (Value(String), withText)
 import Data.String (IsString(..))
 import Data.Text (Text)
+import qualified Data.Text as Text (unpack)
 
 import qualified Turtle as T (FilePath, (<.>), (</>), fromText)
 import qualified Turtle.Format as TF (format, fp)
@@ -15,6 +16,9 @@ getFilePath (Path filePath) = filePath
 
 getFilePathText :: Path -> Text
 getFilePathText = TF.format TF.fp . getFilePath
+
+getFilePathString :: Path -> String
+getFilePathString = Text.unpack . getFilePathText
 
 instance FromJSON Path where
     parseJSON = A.withText "filePath" (pure . Path . T.fromText)

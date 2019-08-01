@@ -7,10 +7,11 @@ import Data.List.NonEmpty (NonEmpty(..))
 import qualified Data.List.NonEmpty as NonEmpty (toList, init, last)
 import Data.Monoid (Any(..), First(..))
 
+import HArch.CombinedExitCode (CombinedExitCode(..))
 import HArch.Path (Path)
 import HArch.Storage (Storage(..), StorageConfig(..), SomeStorage(..), SomeStorageConfig(..))
 
-import Turtle (ExitCode(..), Shell)
+import Turtle (Shell)
 
 newtype MirrorStorageConfig = MirrorStorageConfig (NonEmpty SomeStorageConfig)
 
@@ -18,17 +19,6 @@ instance StorageConfig MirrorStorageConfig where
   makeStorage (MirrorStorageConfig underlyings) = SomeStorage $ MirrorStorage $ makeStorage <$> underlyings
 
 newtype MirrorStorage = MirrorStorage (NonEmpty SomeStorage)
-
-newtype CombinedExitCode = CombinedExitCode { unwrapExitCode :: ExitCode }
-
-instance Semigroup CombinedExitCode where
-  CombinedExitCode ExitSuccess <> CombinedExitCode ExitSuccess = CombinedExitCode ExitSuccess
-  CombinedExitCode ExitSuccess <> right = right
-  left <> CombinedExitCode ExitSuccess = left
-  _ <> right = right
-
-instance Monoid CombinedExitCode where
-  mempty = CombinedExitCode ExitSuccess
 
 readFromFirstAvailable :: ([SomeStorage], SomeStorage) -> Path -> Shell ByteString
 readFromFirstAvailable ([], lastStorage) path = readFromFile lastStorage path

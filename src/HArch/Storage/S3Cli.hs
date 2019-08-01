@@ -37,12 +37,12 @@ s3Uri options path' = "s3://" <> bucket options <> getFilePathText (path options
 
 instance Storage S3CliStorage where
   readFromFile (S3CliStorage options) path' = T.empty & TB.inproc (awsCliCmd options) args
-    where args = ["cp"] <> awsCliArgs options <> [s3Uri options path', "-"]
+    where args = ["s3", "cp"] <> awsCliArgs options <> [s3Uri options path', "-"]
   writeToFile (S3CliStorage options) path' = TB.proc (awsCliCmd options) args
-    where args = ["cp"] <> awsCliArgs options <> ["-", s3Uri options path']
+    where args = ["s3", "cp"] <> awsCliArgs options <> ["-", s3Uri options path']
   removeFile (S3CliStorage options) path' = T.empty & T.proc (awsCliCmd options) args
-    where args = ["rm"] <> awsCliArgs options <> [s3Uri options path']
+    where args = ["s3", "rm"] <> awsCliArgs options <> [s3Uri options path']
   exists (S3CliStorage options) path' = do
-    let args = ["ls"] <> awsCliArgs options <> [s3Uri options path']
+    let args = ["s3", "ls"] <> awsCliArgs options <> [s3Uri options path']
     exitCode <- T.empty & T.proc (awsCliCmd options) args 
     return $ exitCode == ExitSuccess
