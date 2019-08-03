@@ -6,11 +6,7 @@ module Lib
      where
 
 import Control.Monad.Extra (forM)
-import Control.Monad.Except (ExceptT(..), liftIO, runExceptT)
-import Control.Error.Util (hoistEither)
 
-
-import Data.Either.Extra (mapLeft, maybeToEither)
 import qualified Data.Map.Strict as Map (lookup)
 import Data.Maybe (fromMaybe)
 import qualified Data.Text as Text (pack, unpack)
@@ -25,9 +21,8 @@ import qualified Turtle as T (fromText)
 import System.Environment (getEnv)
 import System.Exit (ExitCode(..), exitFailure, exitWith)
 
-
 import HArch.CombinedExitCode (CombinedExitCode(..))
-import HArch.HArchError (HArchError(..))
+import HArch.HArchError (HArchT, HArchError(..), hoistEitherWith, hoistMaybe, runHArchT, liftIO)
 import HArch.Path (Path(..), (</>), (<.>))
 import HArch.Storage (SomeStorage, Storage(..), StorageConfig(..))
 import HArch.ShellCommands (findFilesCmd, linesToBytes, tarCreateCmd, tarExtractCmd)
@@ -57,7 +52,7 @@ makeStorages HArchStorageConfig { store, lists, files } = Storages {
     files = makeStorage files
 }
 
-type HarchOperation = HArchGeneralConfig -> Storages -> ArchiveStore -> ExceptT HArchError IO ExitCode
+type HarchOperation = HArchGeneralConfig -> Storages -> ArchiveStore -> HArchT IO ExitCode
 
 createOperation :: CreateArchiveConfig -> HarchOperation
 createOperation createArchiveOptions generalConfiguration storages metadataStore = do
@@ -109,7 +104,7 @@ restoreOperation restoreArchiveOptions generalConfiguration storages metadataSto
     let archiveName = name (restoreArchiveOptions :: RestoreArchiveConfig)
     let currentPath = Path $ T.fromText archiveName
 
-    lookupResult <- hoistEither $ maybeToEither (ArchiveNotFound $ Text.unpack archiveName) $ Map.lookup currentPath metadataStore >>= (selectArchivesToRestore . archives) 
+    lookupResult <- hoistMaybe (ArchiveNotFound $ Text.unpack archiveName) $ Map.lookup currentPath metadataStore >>= (selectArchivesToRestore . archives) 
 
     liftIO $ print lookupResult
 
@@ -122,11 +117,11 @@ restoreOperation restoreArchiveOptions generalConfiguration storages metadataSto
 
     return $ unwrapExitCode $ mconcat codes
 
-runOperation :: HArchConfiguration -> HArchMode -> ExceptT HArchError IO ExitCode
+runOperation :: HArchConfiguration -> HArchMode -> HArchT IO ExitCode
 runOperation configuration mode' = do
     let storages = makeStorages $ storage configuration
     backupStore <- liftIO $ parseArchiveStore $ readFromFile (store (storages :: Storages)) (storePath $ general configuration)
-    backupStore' <- hoistEither $ mapLeft (FailedToLoadStore . show) backupStore
+    backupStore' <- hoistEitherWith (FailedToLoadStore . show) backupStore
 
     let operation = case mode' of CreateArchiveMode config' -> createOperation config'
                                   RestoreArchiveMode config' -> restoreOperation config'   
@@ -134,7 +129,7 @@ runOperation configuration mode' = do
     operation (general configuration) storages backupStore'
 
 runHarch :: IO (Either HArchError ExitCode)
-runHarch = runExceptT $ do
+runHarch = runHArchT $ do
     cmdlineConfiguration <- liftIO getCmdlineConfiguration
     home <- liftIO $ getEnv "HOME" -- TODO handle empty var
 

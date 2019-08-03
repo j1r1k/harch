@@ -1,11 +1,7 @@
 module HArch.Configuration.FileSource where
 
-import Control.Monad.Except (ExceptT, liftIO)
-import Control.Error.Util (hoistEither)
-
 import Data.Aeson (FromJSON(..))
 import qualified Data.Aeson as A (Value(..))
-import Data.Either.Extra (mapLeft)
 import qualified Data.HashMap.Strict as Map (fromList, keys)
 import Data.Text (Text)
 import qualified Data.Text as Text (pack, unpack)
@@ -16,7 +12,7 @@ import qualified Text.Glabrous as G (Context(..), Result(..), fromText, partialP
 
 import System.Environment (getEnvironment)
 
-import HArch.HArchError (HArchError(..))
+import HArch.HArchError (HArchError(..), HArchT, hoistEither, hoistEitherWith, liftIO, mapLeft)
 import HArch.Path (Path, getFilePathString)
 import HArch.Configuration.General (HArchConfiguration)
 
@@ -35,14 +31,14 @@ interpolateEnvVariables ctx (A.String str) = A.String <$> interpolateEnvVariable
 interpolateEnvVariables _ value = pure value
 
 
-loadHArchConfiguration :: Path -> ExceptT HArchError IO HArchConfiguration
+loadHArchConfiguration :: Path -> HArchT IO HArchConfiguration
 loadHArchConfiguration path = do
     configAsValue <- liftIO $ YAML.decodeFileEither $ getFilePathString path
 
-    configAsValue' <- hoistEither $ mapLeft (FailedToLoadConfig . show) configAsValue
+    configAsValue' <- hoistEitherWith (FailedToLoadConfig . show) configAsValue
 
     envContext <- liftIO $ G.Context . Map.fromList . fmap (both Text.pack) <$> getEnvironment
 
     interpolatedJson <- hoistEither $ interpolateEnvVariables envContext configAsValue'
 
-    hoistEither $ mapLeft (FailedToLoadConfig . show) $ YAML.parseEither parseJSON interpolatedJson
+    hoistEitherWith (FailedToLoadConfig . show) $ YAML.parseEither parseJSON interpolatedJson
