@@ -25,16 +25,15 @@ It creates a `tar` archive while optionally encrypting it.
 
 ## Missing bits
 
-- cli arguments and cli ux
-- configuration files
 - restore flow
   - allow restore of archive
   - search through manifests for a file/pattern to be restored and offer candidates for restore
 
 ### TODOs
 
-- get rid of naming conflicts requiring `NoImplicitPrelude` (`readFile`, `writeFile`)
-- errors via ADT
-- improve structure
+- improve dependencies (e.g. containers x unordered-containers, mtl x transformers)
+- improve logging / user information
+- docs
+- example configs
 - tests
 - auto format
