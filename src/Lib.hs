@@ -52,9 +52,9 @@ makeStorages HArchStorageConfig { store, lists, files } = Storages {
     files = makeStorage files
 }
 
-type HarchOperation = HArchGeneralConfig -> Storages -> ArchiveStore -> HArchT IO ExitCode
+type HArchOperation = HArchGeneralConfig -> Storages -> ArchiveStore -> HArchT IO ExitCode
 
-createOperation :: CreateArchiveConfig -> HarchOperation
+createOperation :: CreateArchiveConfig -> HArchOperation
 createOperation createArchiveOptions generalConfiguration storages metadataStore = do
     currentLocalTime <- liftIO getCurrentLocalTime
 
@@ -99,7 +99,7 @@ createOperation createArchiveOptions generalConfiguration storages metadataStore
 
 
 
-restoreOperation :: RestoreArchiveConfig -> HarchOperation
+restoreOperation :: RestoreArchiveConfig -> HArchOperation
 restoreOperation restoreArchiveOptions generalConfiguration storages metadataStore = do
     let archiveName = name (restoreArchiveOptions :: RestoreArchiveConfig)
     let currentPath = Path $ T.fromText archiveName
@@ -128,8 +128,8 @@ runOperation configuration mode' = do
 
     operation (general configuration) storages backupStore'
 
-runHarch :: IO (Either HArchError ExitCode)
-runHarch = runHArchT $ do
+runHArch :: IO (Either HArchError ExitCode)
+runHArch = runHArchT $ do
     cmdlineConfiguration <- liftIO getCmdlineConfiguration
     home <- liftIO $ getEnv "HOME" -- TODO handle empty var
 
@@ -141,7 +141,7 @@ runHarch = runHArchT $ do
 
 someFunc :: IO ()
 someFunc = do
-    result <- runHarch
+    result <- runHArch
     case result of
         Right exitCode -> exitWith exitCode
         Left err -> do
