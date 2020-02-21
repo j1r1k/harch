@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 3a9d85f10efaf79d1689a7aca360a5d676a0b37b837b6bb7c769ab9740ea936a
+-- hash: 335fd8ccb851358b6709180310f851866140f7d44bcdc47e969c0c50d5219f93
 
 name:           harch
 version:        0.1.0.0
@@ -27,15 +27,25 @@ source-repository head
 
 library
   exposed-modules:
+      HArch.CombinedExitCode
+      HArch.Configuration.Cmdline
+      HArch.Configuration.FileSource
+      HArch.Configuration.General
+      HArch.Configuration.Mode
+      HArch.Configuration.Partial
+      HArch.Configuration.Storage
+      HArch.HArchError
+      HArch.Metadata
+      HArch.MetadataStore
+      HArch.Path
+      HArch.ShellCommands
+      HArch.ShellJSON
+      HArch.Storage
+      HArch.Storage.Gpg
+      HArch.Storage.Local
+      HArch.Storage.Mirror
+      HArch.Storage.S3Cli
       Lib
-      Metadata
-      MetadataStore
-      ShellCommands
-      ShellJSON
-      Storage
-      Storage.Gpg
-      Storage.Local
-      Storage.S3Cli
   other-modules:
       Paths_harch
   hs-source-dirs:
@@ -43,17 +53,25 @@ library
   build-depends:
       aeson
     , aeson-pretty
+    , barbies
     , base >=4.7 && <5
     , bytestring
     , containers
+    , errors
     , extra
     , foldl
+    , glabrous
+    , higgledy
+    , lens
+    , mtl
     , optparse-applicative
     , safe
     , text
     , time
     , turtle
+    , unordered-containers
     , uuid
+    , yaml
   default-language: Haskell2010
 
 executable harch-exe
@@ -66,18 +84,26 @@ executable harch-exe
   build-depends:
       aeson
     , aeson-pretty
+    , barbies
     , base >=4.7 && <5
     , bytestring
     , containers
+    , errors
     , extra
     , foldl
+    , glabrous
     , harch
+    , higgledy
+    , lens
+    , mtl
     , optparse-applicative
     , safe
     , text
     , time
     , turtle
+    , unordered-containers
     , uuid
+    , yaml
   default-language: Haskell2010
 
 test-suite harch-test
@@ -91,16 +117,24 @@ test-suite harch-test
   build-depends:
       aeson
     , aeson-pretty
+    , barbies
     , base >=4.7 && <5
     , bytestring
     , containers
+    , errors
     , extra
     , foldl
+    , glabrous
     , harch
+    , higgledy
+    , lens
+    , mtl
     , optparse-applicative
     , safe
     , text
     , time
     , turtle
+    , unordered-containers
     , uuid
+    , yaml
   default-language: Haskell2010

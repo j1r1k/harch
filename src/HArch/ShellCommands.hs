@@ -1,7 +1,12 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module ShellCommands where
+module HArch.ShellCommands where
 
+import GHC.Generics (Generic)
+
+import Data.Aeson (FromJSON(..), (.:?), (.!=))
+import qualified Data.Aeson as A (withObject)
 import Data.ByteString (ByteString)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.Time.LocalTime (LocalTime)
@@ -14,25 +19,31 @@ import qualified Turtle as T (empty, lineToText)
 import qualified Turtle as TL (inproc)
 import qualified Turtle.Bytes as TB (inproc, proc)
 
+import HArch.Path (Path, getFilePathText)
+
 toNewerArgs :: Text -> Maybe LocalTime -> [Text]
 toNewerArgs argName = maybe [] (\time -> [argName, Text.pack $ formatTime defaultTimeLocale "%FT%T" time])
 
-findFilesCmd :: Text -> Maybe LocalTime -> Shell Line
+findFilesCmd :: Path -> Maybe LocalTime -> Shell Line
 findFilesCmd path newer = TL.inproc "find" args T.empty
     where newerArgs = toNewerArgs "-newermt" newer
           printfArgs = ["-printf", "{ \"path\": \"%p\", \"size\": %s, \"modified\": \"%TY-%Tm-%TdT%TH:%TM:%TS\" }\n"]
-          args = [path] <> newerArgs <> printfArgs
+          args = [getFilePathText path] <> newerArgs <> printfArgs
 
-newtype TarOptions = TarOptions { tarArgs :: [Text] } deriving (Eq, Show)
+newtype TarOptions = TarOptions { tarArgs :: [Text] } deriving (Eq, Show, Generic)
 
-tarCreateCmd :: TarOptions -> Text -> Maybe LocalTime -> Shell ByteString
+instance FromJSON TarOptions where
+  parseJSON = A.withObject "TarOptions" $ \o -> TarOptions
+    <$> o .:? "args" .!= mempty
+
+tarCreateCmd :: TarOptions -> Path -> Maybe LocalTime -> Shell ByteString
 tarCreateCmd options path newer = TB.inproc "tar" args T.empty
   where newerArgs = toNewerArgs "--newer" newer
-        args = ["c"] <> tarArgs options <> newerArgs <> [path]
+        args = ["c"] <> tarArgs options <> newerArgs <> [getFilePathText path]
 
-tarExtractCmd :: MonadIO io => TarOptions -> Text -> Shell ByteString -> io ExitCode
+tarExtractCmd :: MonadIO io => TarOptions -> Path -> Shell ByteString -> io ExitCode
 tarExtractCmd options path = TB.proc "tar" args
-  where args = ["x"] <> tarArgs options <> ["-C", path]
+  where args = ["x"] <> tarArgs options <> ["-C", getFilePathText path]
 
 -- TODO append newline character
 linesToBytes :: Shell Line -> Shell ByteString

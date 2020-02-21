@@ -1,4 +1,4 @@
-module ShellJSON where
+module HArch.ShellJSON where
 
 import qualified Control.Foldl as Foldl (head, list)
 
